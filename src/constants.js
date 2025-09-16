@@ -1,1 +1,1 @@
-export const DB_NAME = "ToDoList";
+export const DB_NAME = "TodoList"
