@@ -176,6 +176,7 @@ const refreshAccessToken = asyncHandler(async(req , res) => {
 })
 
 
+
 const createTask = asyncHandler( async(req , res) => {
 
     const currentUser = await User.findById(req.user?._id)
@@ -220,6 +221,8 @@ const createTask = asyncHandler( async(req , res) => {
 })
 
 
+
+
 const getAllTasksByUser = asyncHandler( async(req , res) => {
     const currentUser = await User.findById(req.user?._id)
 
@@ -242,6 +245,8 @@ const getAllTasksByUser = asyncHandler( async(req , res) => {
     ))
 })
 
+
+
 const getTaskById = asyncHandler( async(req , res) => {
     const {_id} = req.body
     const task = await Task.findOne({_id , owner: req.user?._id})
@@ -260,6 +265,59 @@ const getTaskById = asyncHandler( async(req , res) => {
 })
 
 
+
+const updateTask = asyncHandler( async(req , res) => {
+    const {_id , taskName , taskDescription} = req.body
+
+    if (
+        [_id , taskName].some((field) => field?.trim() === "")
+    ) {
+        throw new apiError(400, "TaskId and taskName is required")
+    }
+
+    const task = await Task.findOneAndUpdate(
+        {_id , owner: req.user?._id},
+        {
+            taskName: taskName,
+            taskDescription: taskDescription
+        },
+        {
+            new: true
+        }
+    )
+
+    return res
+    .status(200)
+    .json(new apiResponse(
+        200,
+        task,
+        "Task updated successfully"
+    ))
+
+})
+
+
+
+const deleteTask = asyncHandler( async(req , res) => {
+    const {_id} = req.body
+
+
+    const task = await Task.findOneAndDelete({_id , owner: req.user?._id})
+
+    if (!task) {
+        throw new apiError(400, "Task does not exist")
+    }
+
+    return res
+    .status(200)
+    .json(new apiResponse(
+        200,
+        "Task deleted successfully"
+    ))
+
+})
+
+
 export {
     registerUser,
     loginUser,
@@ -267,5 +325,7 @@ export {
     refreshAccessToken,
     createTask,
     getAllTasksByUser,
-    getTaskById
+    getTaskById,
+    updateTask,
+    deleteTask
 }
