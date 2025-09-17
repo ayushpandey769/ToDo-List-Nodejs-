@@ -3,6 +3,7 @@ import {apiResponse} from "../utils/apiResponse.js"
 import {apiError} from "../utils/apiError.js"
 import {User} from "../models/user.models.js"
 import jwt from "jsonwebtoken"
+import { Task } from "../models/task.models.js"
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -155,7 +156,7 @@ const refreshAccessToken = asyncHandler(async(req , res) => {
       httpOnly: true,
       secure: true
     }
-  
+    // whaya wala error
     const {accessToken , refreshToken} = await generateAccessAndRefreshToken(user._id)
   
     return res
@@ -175,9 +176,55 @@ const refreshAccessToken = asyncHandler(async(req , res) => {
 })
 
 
+const createTask = asyncHandler( async(req , res) => {
+
+    const currentUser = await User.findById(req.user?._id)
+
+    if (!currentUser) {
+        throw new apiError(400, "User does not exists")
+    }
+
+    const {taskName , taskDescription} = req.body
+
+    if (taskName.trim() === "") {
+        throw new apiError(400, "Task name is required")
+    }
+
+    const existedTask = await Task.findOne({taskName})
+
+    if (existedTask) {
+        throw new apiError(400, "This task already exists")
+    }
+
+    const task = await Task.create({
+        taskName,
+        taskDescription: taskDescription.trim() === "" ? "No description" : taskDescription,
+        owner: currentUser._id
+    });
+    
+    const createdTask = await Task.findById(task._id)
+
+    if (!createdTask) {
+        throw new apiError(500, "Something went wrong while creating the task");
+    }
+
+
+    return res
+    .status(200)
+    .json(new apiResponse(
+        200,
+        createdTask,
+        "Task created successfully"
+    ))
+
+
+})
+
+
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    createTask
 }
