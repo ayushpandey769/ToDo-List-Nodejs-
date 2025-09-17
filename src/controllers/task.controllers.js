@@ -267,7 +267,7 @@ const getTaskById = asyncHandler( async(req , res) => {
 
 
 const updateTask = asyncHandler( async(req , res) => {
-    const {_id , taskName , taskDescription} = req.body
+    const {_id , taskName , taskDescription , isCompleted} = req.body
 
     if (
         [_id , taskName].some((field) => field?.trim() === "")
@@ -275,11 +275,23 @@ const updateTask = asyncHandler( async(req , res) => {
         throw new apiError(400, "TaskId and taskName is required")
     }
 
+    // if (isCompleted !== Boolean) {
+    //     throw new apiError(400, "IsCompleted must be a boolean value")
+    // }
+
+    let isCompleteValue = req.body.isCompleted;
+    
+    if (typeof isCompleteValue === "string") {
+        isCompleteValue = isCompleteValue.toLowerCase() === "true";
+        }
+
+
     const task = await Task.findOneAndUpdate(
         {_id , owner: req.user?._id},
         {
             taskName: taskName,
-            taskDescription: taskDescription
+            taskDescription: taskDescription,
+            isCompleted: isCompleted
         },
         {
             new: true
@@ -290,7 +302,7 @@ const updateTask = asyncHandler( async(req , res) => {
     .status(200)
     .json(new apiResponse(
         200,
-        task,
+        {taskName , taskDescription , isCompleteValue},
         "Task updated successfully"
     ))
 
