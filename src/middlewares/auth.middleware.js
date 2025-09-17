@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 
 
 
-export const verifyJWT = asyncHandler(async (req , res , next) => {
+const verifyJWT = asyncHandler(async (req , res , next) => {
     try {
          const token = req.cookies?.accessToken || req.body
  
@@ -32,3 +32,5 @@ export const verifyJWT = asyncHandler(async (req , res , next) => {
     }
 
 })
+
+export {verifyJWT}
