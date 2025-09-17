@@ -217,7 +217,46 @@ const createTask = asyncHandler( async(req , res) => {
         "Task created successfully"
     ))
 
+})
 
+
+const getAllTasksByUser = asyncHandler( async(req , res) => {
+    const currentUser = await User.findById(req.user?._id)
+
+    if (!currentUser) {
+        throw new apiError(400, "User does not exists")
+    }
+
+    const allTasks = await Task.find({owner: currentUser._id})
+
+    if (allTasks.length === 0) {
+        console.log("Currently no tasks");
+    }
+
+    return res
+    .status(200)
+    .json(new apiResponse(
+        200,
+        allTasks,
+        "All Tasks retrived successfully"
+    ))
+})
+
+const getTaskById = asyncHandler( async(req , res) => {
+    const {_id} = req.body
+    const task = await Task.findOne({_id , owner: req.user?._id})
+
+    if (!task) {
+        throw new apiError(400, "Task does not exists")
+    }
+
+    return res
+    .status(200)
+    .json(new apiResponse(
+        200,
+        task,
+        "Task found successfully"
+    ))
 })
 
 
@@ -226,5 +265,7 @@ export {
     loginUser,
     logoutUser,
     refreshAccessToken,
-    createTask
+    createTask,
+    getAllTasksByUser,
+    getTaskById
 }
