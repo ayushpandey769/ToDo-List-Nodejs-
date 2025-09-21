@@ -1,5 +1,5 @@
 import mongoose,{Schema} from "mongoose";
-import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
+
 
 
 const taskSchema = new Schema({
@@ -26,6 +26,5 @@ const taskSchema = new Schema({
     }
 )
 
-taskSchema.plugin(mongooseAggregatePaginate)
 
 export const Task = mongoose.model('Task', taskSchema)

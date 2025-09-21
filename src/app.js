@@ -6,9 +6,6 @@ const app = express()
 app.use(express.json({limit: "16kb"}))
 app.use(cookieParser())
 
-app.get('/', (req, res) => {
-  res.send('API is running');
-});
 
 
 // routes
